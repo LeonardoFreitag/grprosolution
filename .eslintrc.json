@@ -1,0 +1,9 @@
+{
+  "extends": ["next/core-web-vitals", "@rocketseat/eslint-config/next"],
+  "rules": {
+    "react/react-in-jsx-scope": "off",
+    "@typescript-eslint/no-explicit-any": "off",
+    "@typescript-eslint/no-unused-vars": "warn",
+    "camelcase": "off",
+  }
+}
