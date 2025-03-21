@@ -65,7 +65,7 @@ export default function SignUp() {
           type: 'success',
           duration: 2000,
         })
-        router.push('/Institutional/SignIn')
+        router.push('/Application/SignIn')
       } else {
         toaster.create({
           title: 'Erro',

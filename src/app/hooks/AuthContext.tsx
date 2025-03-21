@@ -6,11 +6,11 @@ import {
   useEffect,
   useState,
 } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import { setCookie, parseCookies, destroyCookie } from 'nookies'
-// import { useToast } from '@chakra-ui/react';
 import api from '../services/apiClient'
 import { IUser, UserAuthModel } from '../Models/UserAuthModel'
+import { APP_ROUTES } from "@/app/Constants/app-routes"
 
 type SignInCredentials = {
   email: string
@@ -43,6 +43,7 @@ let authChanell: BroadcastChannel
 
 export function AuthProvider({ children }: AuthProviderProps) {
   const router = useRouter()
+  const pathname = usePathname()
   const [user, setUser] = useState<UserAuthModel>()
   const isAuthenticated = !!user
 
@@ -69,9 +70,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
           signOut()
           authChanell.close()
           break
-        // case 'signIn':
-        //   Router.push('/dashboard');
-        //   break;
         default:
           break
       }
@@ -83,7 +81,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     const { 'GRPro.refreshToken': refreshToken } = parseCookies()
     const { 'GRPro.user': dataUser } = parseCookies()
 
-    if (dataUser) {
+    if (dataUser && token) {
       const userParsed = JSON.parse(dataUser)
 
       const newUser: UserAuthModel = {
@@ -91,27 +89,21 @@ export function AuthProvider({ children }: AuthProviderProps) {
         token,
         refreshToken,
       }
-      // console.log('localuser', newUser);
       setUser(newUser)
+      console.log('User loaded')
       api.defaults.headers.authorization = `Bearer ${token}`
+    } else {
+      console.log('User not loaded')
+      const publicRoutes = Object.values(APP_ROUTES.public)
+      if (!publicRoutes.includes(pathname)) {
+        signOut()
+      }
     }
-
-    if (token) {
-      api
-        .get('/users/profile')
-        .then((response) => {
-          // console.log('profile', response.data.user);
-          setUser(response.data)
-        })
-        .catch(() => {
-          signOut()
-        })
-    }
-  }, [])
+  }, [pathname])
 
   useEffect(() => {
     loadProfile()
-  }, [])
+  }, [loadProfile])
 
   function recoveryDataUser(): string {
     const { 'GRPro.user': localUser } = parseCookies()
@@ -125,14 +117,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
     email,
     password,
   }: SignInCredentials): Promise<boolean> {
-    console.log(email, password)
     try {
       const response = await api.post<UserAuthModel>('/users/sessions', {
         email,
         password,
       })
-
-      // const { user, refreshToken, token, permissions, roles } = response.data;
 
       setCookie(undefined, 'GRPro.token', response.data.token, {
         maxAge: 60 * 60 * 24 * 30, // 30 days
@@ -158,7 +147,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
       return true
     } catch (error) {
-      // console.log(error);
       return false
     }
   }
@@ -168,7 +156,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
       await api.post('/users/password/forgot', { email })
       return true
     } catch (error) {
-      // console.log(error);
       return false
     }
   }
@@ -178,8 +165,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
     destroyCookie(null, 'GRPro.refreshToken', { path: '/' })
     destroyCookie(null, 'GRPro.user', { path: '/' })
 
-    await router.push('/Institutional/SignIn')
+    await router.push('/Application/SignIn')
   }
+
   return (
     <AuthContext.Provider
       value={{

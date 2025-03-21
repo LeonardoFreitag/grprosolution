@@ -1,3 +1,13 @@
+'use client'
+import { useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+
 export default function Home() {
-  return <div className="flex w-full"></div>
+  const router = useRouter()
+
+  useEffect(() => {
+    router.replace('/Application/Home')
+  }, [router])
+
+  return null
 }

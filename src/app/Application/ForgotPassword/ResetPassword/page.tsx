@@ -58,7 +58,7 @@ function ResetPasswordContent() {
       duration: 2000,
     })
     await new Promise(resolve => setTimeout(resolve, 2000))
-    router.push('/Institutional/SignIn')
+    router.push('/Application/SignIn')
   }
 
   return (

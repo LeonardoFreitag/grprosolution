@@ -19,8 +19,19 @@ import HeritageTable from '@/app/components/ClientArea/Cadastros/Patrimonio/Heri
 import HeritageDialog from '@/app/components/ClientArea/Cadastros/Patrimonio/HeritageDialog'
 import HeritageTypeTable from '@/app/components/ClientArea/Cadastros/Patrimonio/HeritageTypeTable'
 import HeritageTypeDialog from '@/app/components/ClientArea/Cadastros/Patrimonio/HeritageTypeDialog'
+import { useEffect, useState } from 'react'
 
 export default function Heritage() {
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  if (!isClient) {
+    return null;
+  }
+
   return (
     <div className="flex w-full h-screen bg-slate-100 justify-center items-start pt-4">
       <div className="w-11/12 h-5/6 p-2 bg-slate-100 border-2 border-green-200 shadow-lg shadow-green-300">

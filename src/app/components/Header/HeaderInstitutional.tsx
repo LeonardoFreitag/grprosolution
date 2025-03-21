@@ -8,7 +8,7 @@ export function HeadeInstitutional() {
         </div>
         <div className="flex gap-7 mr-3 flex-row items-center">
           <a
-            href="/Institutional/Home"
+            href="/Application/Home"
             className="mx-2 text-white hover:text-yellow-300 transition durantion-300"
           >
             Home
@@ -43,7 +43,7 @@ export function HeadeInstitutional() {
           </a>
           <span className="border-l border-gray-300 h-6"></span>
           <a
-            href="/Institutional/SignIn"
+            href="/Application/SignIn"
             className="mx-2 text-white hover:text-yellow-300 transition durantion-300"
           >
             Área do cliente

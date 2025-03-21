@@ -52,7 +52,7 @@ export default function SignIn() {
         duration: 2000,
       })
       await new Promise(resolve => setTimeout(resolve, 2000))
-      router.push('/Institutional/SignIn')
+      router.push('/Application/SignIn')
     }
     setIsLoading(false)
   }
@@ -84,13 +84,13 @@ export default function SignIn() {
           </form>
           <div className="flex flex-col justify-center items-center gap-5 pt-8">
             <a
-              href="/Institutional/SignUp"
+              href="/Application/SignUp"
               className="w-56 rounded-md text-center text-sm p-2 hover:bg-green-300 transition duration-300"
             >
               Criar uma conta
             </a>
             <a
-              href="/Institutional/ForgotPassword"
+              href="/Application/ForgotPassword"
               className="text-xs text-green-400"
             >
               Esqueceu a senha?

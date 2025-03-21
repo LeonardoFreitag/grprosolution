@@ -14,7 +14,7 @@ export default function PasswordResetSent() {
         <p className="mt-2 text-gray-600 text-center">
           Se um e-mail associado a esta conta existir, você receberá um link para redefinir sua senha em breve.
         </p>
-        <button className="mt-6 px-4 py-2 text-white bg-green-500 rounded-md hover:bg-green-700 transition durantion 300" onClick={() => router.push("/Institutional/SignIn")}>
+        <button className="mt-6 px-4 py-2 text-white bg-green-500 rounded-md hover:bg-green-700 transition durantion 300" onClick={() => router.push("/Application/SignIn")}>
           Página de Login!
         </button>
       </div>
