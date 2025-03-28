@@ -1,16 +1,13 @@
-import React, { ReactNode } from 'react'
+import React from 'react'
 import { HTML5Backend } from 'react-dnd-html5-backend'
-// import { DndProvider } from 'react-dnd'
 import { AuthProvider } from './AuthContext'
 
-type Props = {
-  children: ReactNode
+
+export default function AppProvider({ children }: { children: React.ReactNode }) {
+  console.log('AppProvider montado')
+  return (
+    <AuthProvider>
+      {children}
+    </AuthProvider>
+  )
 }
-
-const AppProvider: React.FC<Props> = ({ children }: Props) => (
-  // <DndProvider backend={HTML5Backend}>
-  <AuthProvider>{children}</AuthProvider>
-  // </DndProvider>
-)
-
-export default AppProvider

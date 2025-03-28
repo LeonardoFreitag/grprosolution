@@ -1,7 +1,7 @@
 'use client'
 
 import dynamic from 'next/dynamic'
-import { Suspense, useState, useEffect } from 'react'
+import { Suspense, useState, useEffect, useContext } from 'react'
 import { Roboto } from 'next/font/google'
 import { usePathname } from 'next/navigation'
 import { parseCookies } from 'nookies'
@@ -10,6 +10,8 @@ import AppProvider from './hooks'
 import { chekIsPlublicRoute } from '@/functions/CheckIsPublicRoute'
 import './globals.css'
 import { APP_ROUTES } from '@/app/Constants/app-routes'
+import { AuthContext } from './hooks/AuthContext'
+import PageSpinner from './components/PageSpinner/PageSpinner'
 
 const roboto = Roboto({
   subsets: ['latin'],
@@ -33,38 +35,28 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  const pathName = usePathname()
-  const [token, setToken] = useState<string | null>(null)
+  const { isLoading } = useContext(AuthContext)
+  console.log('Layout - AuthContext:', useContext(AuthContext))
 
-  useEffect(() => {
-    const cookies = parseCookies()
-    setToken(cookies['GRPro.token'])
-  }, [])
 
-  const isPublicPage = chekIsPlublicRoute(pathName)
-  // console.log(`isPublicPage: ${isPublicPage}, pathName: ${pathName}`)
+ // Exibe um carregamento enquanto o estado de autenticação está sendo verificado
+ if (isLoading) {
+  console.log('Layout - Carregando estado de autenticação...')
+  return <div><PageSpinner /></div>
+}
 
-  const isAuthenticated = !!token
-  // console.log(`isAuthenticated: ${isAuthenticated}`)
 
-  // Redireciona para a página de login se a página não for pública e o usuário não estiver autenticado
-  if (!isPublicPage && !isAuthenticated) {
-    if (typeof window !== 'undefined') {
-      window.location.href = APP_ROUTES.public.signIn
-    }
-    return null
-  }
 
   return (
     <html lang="en" suppressHydrationWarning className={roboto.className}>
       <body>
-        <AppProvider>
           <Provider>
-            <Suspense fallback={<div>Carregando...</div>}>
+        <AppProvider>
+            {/* <Suspense fallback={<div><PageSpinner /></div>}> */}
               <DynamicRootLayoutContent>{children}</DynamicRootLayoutContent>
-            </Suspense>
-          </Provider>
+            {/* </Suspense> */}
         </AppProvider>
+          </Provider>
       </body>
     </html>
   )

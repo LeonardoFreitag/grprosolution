@@ -14,8 +14,6 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
-      <body className="">
         <div className="">
           <HeadeClient />
           <main className="grid grid-cols-app bg-slate-100">
@@ -23,7 +21,5 @@ export default function RootLayout({
             <div className="min-h-screen border-t-2 w-full">{children}</div>
           </main>
         </div>
-      </body>
-    </html>
   )
 }

@@ -11,6 +11,8 @@ import { setCookie, parseCookies, destroyCookie } from 'nookies'
 import api from '../services/apiClient'
 import { IUser, UserAuthModel } from '../Models/UserAuthModel'
 import { APP_ROUTES } from "@/app/Constants/app-routes"
+import CustomerModel from '../Models/CustomerModel'
+import PageSpinner from '../components/PageSpinner/PageSpinner'
 
 type SignInCredentials = {
   email: string
@@ -31,6 +33,7 @@ type AuthContextData = {
   isAuthenticated: boolean
   loadProfile: () => void
   recoveryDataUser: () => string
+  isLoading: boolean
 }
 
 type AuthProviderProps = {
@@ -45,6 +48,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const router = useRouter()
   const pathname = usePathname()
   const [user, setUser] = useState<UserAuthModel>()
+  const [isProfileLoaded, setIsProfileLoaded] = useState(false); // Novo estado para indicar que o perfil foi carregado
+  const [isLoading, setIsLoading] = useState(false) // Estado de carregamento
   const isAuthenticated = !!user
 
   function changeTokens(token: string, refreshToken: string) {
@@ -61,6 +66,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
     api.defaults.headers.authorization = `Bearer ${user.token}`
   }
 
+  
+  
   useEffect(() => {
     authChanell = new BroadcastChannel('auth')
 
@@ -77,12 +84,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }, [])
 
   const loadProfile = useCallback(() => {
+    setIsLoading(true) // Inicia o carregamento
     const { 'GRPro.token': token } = parseCookies()
     const { 'GRPro.refreshToken': refreshToken } = parseCookies()
-    const { 'GRPro.user': dataUser } = parseCookies()
+    const { 'GRPro.user': user } = parseCookies()
 
-    if (dataUser && token) {
-      const userParsed = JSON.parse(dataUser)
+    if (user && token) {
+      console.log('Usuário encontrado')
+      const userParsed = JSON.parse(user)
 
       const newUser: UserAuthModel = {
         user: userParsed,
@@ -90,20 +99,56 @@ export function AuthProvider({ children }: AuthProviderProps) {
         refreshToken,
       }
       setUser(newUser)
-      console.log('User loaded')
+      console.log('Usuário carregado com sucesso', newUser)
+      console.log('Token:', token)
+      console.log('Refresh Token:', refreshToken)
       api.defaults.headers.authorization = `Bearer ${token}`
     } else {
-      console.log('User not loaded')
-      const publicRoutes = Object.values(APP_ROUTES.public)
-      if (!publicRoutes.includes(pathname)) {
-        signOut()
-      }
+      console.log('Usuário não encontrado')
+      
     }
-  }, [pathname])
+    setIsLoading(false) // Finaliza o carregamento
+  }, [])
 
   useEffect(() => {
     loadProfile()
   }, [loadProfile])
+
+  useEffect(() => {
+    const initializeProfile = async () => {
+      setIsLoading(true); // Inicia o carregamento
+      await loadProfile(); // Aguarda o carregamento do perfil
+      setIsLoading(false); // Finaliza o carregamento
+      setIsProfileLoaded(true); // Marca que o perfil foi carregado
+    };
+  
+    initializeProfile();
+  }, [loadProfile]);
+
+  useEffect(() => {
+    if (!isProfileLoaded) {
+      console.log('AuthContext - Aguardando carregamento completo do perfil...');
+      return; // Aguarda até que o perfil seja carregado
+    }
+  
+    console.log('AuthContext - Verificando autenticação...', {
+      isLoading,
+      isAuthenticated,
+      pathname,
+    });
+  
+    const publicRoutes = Object.values(APP_ROUTES.public);
+    const isPublicPage = publicRoutes.includes(pathname);
+  
+    if (!isAuthenticated && !isPublicPage) {
+      console.log('AuthContext - Redirecionando para SignIn...');
+      router.push(APP_ROUTES.public.signIn);
+    } else {
+      console.log('AuthContext - Usuário autenticado ou em página pública.');
+    }
+  }, [isProfileLoaded, isAuthenticated, pathname, router]);
+  
+
 
   function recoveryDataUser(): string {
     const { 'GRPro.user': localUser } = parseCookies()
@@ -147,6 +192,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
       return true
     } catch (error) {
+      console.error('Error on signIn:', error)
       return false
     }
   }
@@ -165,7 +211,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
     destroyCookie(null, 'GRPro.refreshToken', { path: '/' })
     destroyCookie(null, 'GRPro.user', { path: '/' })
 
+    setUser(undefined) // Limpa o estado do usuário
+    setIsLoading(false) // Garante que o carregamento finalize
     await router.push('/Application/SignIn')
+  }
+  if (isLoading) {
+    // Exibe um componente de carregamento enquanto verifica a autenticação
+    return <div><PageSpinner /></div>
   }
 
   return (
@@ -180,6 +232,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         signOut,
         user,
         isAuthenticated,
+        isLoading,
       }}
     >
       {children}
