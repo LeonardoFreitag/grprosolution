@@ -24,6 +24,7 @@ export interface SideMenuItemModel {
   sub_item: string
   link?: string
   icon?: any
+  sub_items?: SideMenuItemModel[] // Allow nested sub-items
 }
 
 export interface SideMenuModel {
@@ -52,8 +53,25 @@ export const SideMenu: SideMenuModel[] = [
     items: [
       {
         sub_item: 'Propriedades',
-        link: '/ClientArea/Cadastros/Properties',
         icon: HousePlus,
+        link: '/ClientArea/Cadastros/Properties',
+        sub_items: [
+          {
+            sub_item: 'Propriedades',
+            link: '/ClientArea/Cadastros/Properties',
+            icon: HousePlus,
+          },
+          {
+            sub_item: 'Tables',
+            link: '/ClientArea/Cadastros/Properties/Tables',
+            icon: MonitorCog,
+          },
+          {
+            sub_item: 'Pluviometria',
+            link: '/ClientArea/Cadastros/Properties/Pluviometry',
+            icon: MonitorCog,
+          },
+        ],
       },
       {
         sub_item: 'Plano de contas',
